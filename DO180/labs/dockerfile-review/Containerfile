@@ -1,0 +1,22 @@
+FROM ubi8/ubi:8.3
+
+MAINTAINER Eric <eric@example.com>
+
+ENV PORT 8080
+
+RUN yum -y install httpd
+
+RUN sed -ri -e "/^Listen 80/c\Listen ${PORT}" /etc/httpd/conf/httpd.conf && \
+    chown -R 48:48 /etc/httpd/logs/ && \
+    chown -R 48:48 /run/httpd/ 
+
+USER apache
+
+# Expose the custom port that you provided in the ENV var
+EXPOSE $PORT
+
+# Copy all files under src/ folder to Apache DocumentRoot (/var/www/html) 
+COPY src/index.html /var/www/html
+
+# Start Apache in the foreground
+CMD [ "httpd" , "-D" , "FOREGROUND" ]
